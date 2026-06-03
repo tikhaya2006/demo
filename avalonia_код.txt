@@ -45,7 +45,8 @@ public static class Database
             cmd.Parameters.AddWithValue("@login", login);
             cmd.Parameters.AddWithValue("@pass", pass);
             using var r = await cmd.ExecuteReaderAsync();
-            return await r.ReadAsync() ? new User { id = r.GetInt32(0), RoleId = r.GetInt32(1), RoleName = r.GetString(2), Login = login } : null;
+            return await r.ReadAsync() ? new User 
+           { id = r.GetInt32(0), RoleId = r.GetInt32(1), RoleName = r.GetString(2), Login = login } : null;
         }
         catch { return null; }
     }
