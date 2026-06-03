@@ -1,0 +1,330 @@
+dotnet new avalonia.app -o Magazin
+cd Magazin
+dotnet add package Npgsql
+-
+Resources
+Model
+Services
+ViewModels
+Views
+-
+namespace Magazin.Model;
+public class User
+{
+    public int id { get; set; }
+    public int RoleId { get; set; }
+    public string Login { get; set; } ="";
+    public string Password { get; set;} ="";
+    public string RoleName { get; set; } ="";
+}
+-
+using System.Threading.Tasks;
+using Npgsql;
+using Magazin.Model;
+
+namespace Magazin.Services;
+
+public static class Database
+{
+    static string Conn = "Host=localhost;Port=5433;Database=demo;Username=postgres;Password=1234";
+    public static async Task<User?> GetUserAsync(string login, string pass)
+    {
+        try
+        {
+            using var con = new NpgsqlConnection(Conn);
+            await con.OpenAsync();
+            using var cmd = new NpgsqlCommand
+           (@"SELECT 
+            u.id, 
+            u.user_role_id, 
+            r.name 
+            FROM users u 
+            JOIN user_role r ON u.user_role_id = r.id 
+            WHERE u.login = @login 
+            AND u.user_password = @pass", con);
+            cmd.Parameters.AddWithValue("@login", login);
+            cmd.Parameters.AddWithValue("@pass", pass);
+            using var r = await cmd.ExecuteReaderAsync();
+            return await r.ReadAsync() ? new User { id = r.GetInt32(0), RoleId = r.GetInt32(1), RoleName = r.GetString(2), Login = login } : null;
+        }
+        catch { return null; }
+    }
+}
+-
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Magazin.Views.AdminWindow"
+        Title="Администратор" Width="700" Height="500"
+        WindowStartupLocation="CenterScreen"
+        Background="White" CanResize="False">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Background="#67BA80" Padding="10">
+            <DockPanel>
+                <TextBlock x:Name="RoleText" Text="Администратор" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+        
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+            <TextBlock Text="Панель администратора" FontSize="24" FontWeight="Bold" Foreground="#333"/>
+            <Button Content="Управление товарами" Width="250" Height="40" Background="#67BA80" Foreground="White" Click="OnProductsClick"/>
+            <Button Content="Просмотр заказов" Width="250" Height="40" Background="#67BA80" Foreground="White" Click="OnOrdersClick"/>
+        </StackPanel>
+        
+        <Border Grid.Row="2" Background="#f5f5f5" Padding="10">
+            <Button Content="Выход" Click="OnLogout" HorizontalAlignment="Right" Width="100" Background="#67BA80" Foreground="White"/>
+        </Border>
+    </Grid>
+</Window>
+-
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Magazin.Model;
+
+namespace Magazin.Views
+{
+    public partial class AdminWindow : Window
+    {
+        private User _user;
+        
+        public AdminWindow()
+        {
+            InitializeComponent();
+            _user = new User();
+        }
+        
+        public AdminWindow(User user) : this()
+        {
+            _user = user;
+        }
+        
+        private void OnProductsClick(object? sender, RoutedEventArgs e)
+        {
+      
+        }
+        
+        private void OnOrdersClick(object? sender, RoutedEventArgs e)
+        {
+      
+        }
+        
+        private void OnLogout(object? sender, RoutedEventArgs e)
+        {
+            new MainWindow().Show();
+            Close();
+        }
+    }
+}
+-
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Magazin.Views.ClientWindow"
+        Title="Клиент" Width="700" Height="500"
+        WindowStartupLocation="CenterScreen"
+        Background="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Background="#67BA80" Padding="10">
+            <DockPanel>
+                <TextBlock x:Name="RoleText" Text="Клиент" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+            <TextBlock Text="Личный кабинет клиента" FontSize="24" FontWeight="Bold" Foreground="#333"/>
+            <Button Content="Просмотр товаров" Width="250" Height="40" Background="#67BA80" Foreground="White" Click="OnProductsClick"/>
+        </StackPanel>
+        <Border Grid.Row="2" Background="#f5f5f5" Padding="10">
+            <Button Content="Выход" Click="OnLogout" HorizontalAlignment="Right" Width="100" Background="#67BA80" Foreground="White"/>
+        </Border>
+    </Grid>
+</Window>
+-
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Magazin.Model;
+
+namespace Magazin.Views;
+
+public partial class ClientWindow : Window
+{
+    private User _user;
+    
+    public ClientWindow()
+    {
+        InitializeComponent();
+        _user = new User();
+    }
+    public ClientWindow(User user) : this()
+    {
+        _user = user;
+    }
+    private void OnProductsClick(object? sender, RoutedEventArgs e)
+    {
+    }
+    private void OnLogout(object? sender, RoutedEventArgs e)
+    {
+        new MainWindow().Show();
+        Close();
+    }
+}
+-
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Magazin.Views.MainWindow"
+        Title="Вход" Width="400" Height="300"
+        WindowStartupLocation="CenterScreen" Background="White">
+    
+    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Width="250" Spacing="15">
+        <TextBox Name="LoginBox" Watermark="Логин"/>
+        <TextBox Name="PassBox" Watermark="Пароль"/>
+        <Button Name="LoginBtn" Content="Войти" Background="Green" Foreground="White"/>
+        <Button Name="GuestBtn" Content="Гость" Background="Gray" Foreground="White"/>
+    </StackPanel>
+</Window>
+-
+using Avalonia.Controls;
+using System;
+using System.Threading.Tasks;
+using Magazin.Services;
+using Magazin.Model;
+
+namespace Magazin.Views;
+
+public partial class MainWindow : Window
+{
+    public MainWindow()
+    {
+        InitializeComponent();
+        LoginBtn.Click += async (s, e) => await Login();
+        GuestBtn.Click += (s, e) => GuestLogin();
+    }
+    private async Task Login()
+    {
+        var user = await Database.GetUserAsync(LoginBox.Text ?? "", PassBox.Text ?? "");
+        
+        if (user != null)
+        {
+            if (user.RoleId == 1)
+                new AdminWindow(user).Show();
+            else if (user.RoleId == 2)
+                new ManagerWindow(user).Show();
+            else
+                new ClientWindow(user).Show();
+            Close();
+        }
+        else
+        {
+            var error = new Window 
+            { 
+                Title = "Ошибка", 
+                Width = 250, 
+                Height = 100,
+                Content = new TextBlock { Text = "Неверный логин или пароль", Margin = new(20) }
+            };
+            await error.ShowDialog(this);
+        }
+    }
+    private void GuestLogin()
+    {
+        new MainWindow().Show();
+        Close();
+    }
+}
+-
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Magazin.Views.ManagerWindow"
+        Title="Менеджер" Width="700" Height="500"
+        WindowStartupLocation="CenterScreen"
+        Background="White" CanResize="False">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Border Grid.Row="0" Background="#67BA80" Padding="10">
+            <DockPanel>
+                <TextBlock x:Name="RoleText" Text="Менеджер" FontSize="16" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+            </DockPanel>
+        </Border>
+        
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="20">
+            <TextBlock Text="Панель менеджера" FontSize="24" FontWeight="Bold" Foreground="#333"/>
+            <Button Content="Управление товарами" Width="250" Height="40" Background="#67BA80" Foreground="White" Click="OnProductsClick"/>
+            <Button Content="Просмотр заказов" Width="250" Height="40" Background="#67BA80" Foreground="White" Click="OnOrdersClick"/>
+        </StackPanel>
+        
+        <Border Grid.Row="2" Background="#f5f5f5" Padding="10">
+            <Button Content="Выход" Click="OnLogout" HorizontalAlignment="Right" Width="100" Background="#67BA80" Foreground="White"/>
+        </Border>
+    </Grid>
+</Window>
+-
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Magazin.Model;
+
+namespace Magazin.Views;
+
+public partial class ManagerWindow : Window
+{
+    private User _user;
+    
+    public ManagerWindow()
+    {
+        InitializeComponent();
+        _user = new User();
+    }
+    public ManagerWindow(User user) : this()
+    {
+        _user = user;
+    }
+    private void OnProductsClick(object? sender, RoutedEventArgs e)
+    {
+    }
+    private void OnOrdersClick(object? sender, RoutedEventArgs e)
+    {
+    }
+    private void OnLogout(object? sender, RoutedEventArgs e)
+    {
+        new MainWindow().Show();
+        Close();
+    }
+}
+-
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
+using Magazin.Views;
+
+namespace Magazin;
+
+public partial class App : Application
+{
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+
+        base.OnFrameworkInitializationCompleted();
+    }
+}
