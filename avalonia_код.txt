@@ -213,7 +213,6 @@ public partial class MainWindow : Window
     private async Task Login()
     {
         var user = await Database.GetUserAsync(LoginBox.Text ?? "", PassBox.Text ?? "");
-        
         if (user != null)
         {
             if (user.RoleId == 1)
