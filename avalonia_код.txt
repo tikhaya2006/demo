@@ -102,22 +102,16 @@ namespace Magazin.Views
             InitializeComponent();
             _user = new User();
         }
-        
         public AdminWindow(User user) : this()
         {
             _user = user;
         }
-        
         private void OnProductsClick(object? sender, RoutedEventArgs e)
         {
-      
         }
-        
         private void OnOrdersClick(object? sender, RoutedEventArgs e)
         {
-      
         }
-        
         private void OnLogout(object? sender, RoutedEventArgs e)
         {
             new MainWindow().Show();
