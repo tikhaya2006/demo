@@ -333,3 +333,30 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 }
+-
+create table tovar (
+id serial primary key,
+art varchar(50),
+name_tovar_id int references name_tovar(id),
+ed_izm varchar(50),
+price varchar(50),
+postavshik_id int references postavshik(id),
+proizvoditel_id int references proizvoditel(id),
+kategori_id int references kategori(id),
+sale int,
+kolich int,
+textt varchar(255),
+photo varchar(50)
+);
+-
+insert into users (user_role_id, user_name, login, user_password) values
+(1, 'Никифорова Весения Николаевна', '94d5ous@gmail.com', 'uzWC67'),
+(1, 'Сазонов Руслан Германович', 'uth4iz@mail.com', '2L6KZG'),
+(1, 'Одинцов Серафим Артёмович', 'yzls62@outlook.com', 'JlFRCZ'),
+(2, 'Степанов Михаил Артёмович', '1diph5e@tutanota.com', '8ntwUp'),
+(2, 'Ворсин Петр Евгеньевич', 'tjde7c@yahoo.com', 'YOyhfR'),
+(2, 'Старикова Елена Павловна', 'wpmrc3do@tutanota.com', 'RSbvHv'),
+(3, 'Михайлюк Анна Вячеславовна', '5d4zbu@tutanota.com', 'rwVDh9'),
+(3, 'Ситдикова Елена Анатольевна', 'ptec8ym@yahoo.com', 'LdNyos'),
+(3, 'Ворсин Петр Евгеньевич', '1qz4kw@mail.com', 'gynQMT'),
+(3, 'Старикова Елена Павловна', '4np6se@mail.com', 'AtnDjr');
